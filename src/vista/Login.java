@@ -1,20 +1,23 @@
 package vista;
 
+import ConexionBD.ConexionBD;
 import controlador.FotoDAO;
+import modelo.Foto;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.awt.Image;
+import java.sql.Connection;
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.*;
 
 public class Login extends JFrame{
-
     JLabel lbl_Usuario, lbl_Contraseña;
-    JTextField txt_Usuario;
-    JPasswordField txt_Contraseña;
+    JTextField caja_Usuario;
+    JPasswordField caja_Contraseña;
     JButton btn_Ingresar;
     JLabel lbl_imagen;
     Color C1 = new Color(79, 255, 88);
@@ -41,18 +44,18 @@ public class Login extends JFrame{
         lbl_Usuario.setFont(new Font("Berlin Sans FB", Font.PLAIN, 16));
         add(lbl_Usuario);
 
-        txt_Usuario = new JTextField();
-        txt_Usuario.setBounds(50, 210, 185, 25);
-        add(txt_Usuario);
+        caja_Usuario = new JTextField();
+        caja_Usuario.setBounds(50, 210, 185, 25);
+        add(caja_Usuario);
 
         lbl_Contraseña = new JLabel("Contraseña");
         lbl_Contraseña.setBounds(50, 250, 100, 25);
         lbl_Contraseña.setFont(new Font("Berlin Sans FB", Font.PLAIN, 16));
         add(lbl_Contraseña);
 
-        txt_Contraseña = new JPasswordField();
-        txt_Contraseña.setBounds(50, 280, 185, 25);
-        add(txt_Contraseña);
+        caja_Contraseña = new JPasswordField();
+        caja_Contraseña.setBounds(50, 280, 185, 25);
+        add(caja_Contraseña);
 
         btn_Ingresar = new JButton("Ingresar");
         btn_Ingresar.setBounds(95, 340, 100, 35);
@@ -63,20 +66,27 @@ public class Login extends JFrame{
 
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                if (verificar()) {
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            if(true) {
-                                new paginas();
-                            }else {
+                Connection a = ConexionBD.getConexion();
+                FotoDAO f = new FotoDAO();
 
+
+                ArrayList<Foto> listaUsuarios = new ArrayList<>();
+                listaUsuarios = f.buscarU(caja_Usuario.getText());
+                if(listaUsuarios!=null) {
+                    if(listaUsuarios.get(0).getContraseña().equals(caja_Contraseña.getText())) {
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                Thread hilo = new Thread(f);
+                                hilo.start();
+                                setVisible(false);
                             }
-                        }
-                    });
-                    setVisible(false);
+                        });
+                    }else {
+                        JOptionPane.showMessageDialog(null,"Contreseña incorrecta");
+                    }
                 }else {
-                    JOptionPane.showMessageDialog(null, "El nombre de usuario o la contraseña son incorrectos");
+                    JOptionPane.showMessageDialog(null,"Usuario inexistente");
                 }
             }
         });
@@ -93,22 +103,5 @@ public class Login extends JFrame{
                 }
             }
         });
-    }
-    public boolean verificar() {
-        FotoDAO fotoDAO = new FotoDAO();
-        Thread hilo = new Thread(fotoDAO);
-        hilo.start();
-
-        int op = 0;
-
-        int cont = fotoDAO.buscarUsuarios("").size();
-        for(int i=0; i<cont; i++){
-            if (txt_Usuario.getText().equals(String.valueOf(fotoDAO.buscarUsuarios("").get(i).getUsuario())) && txt_Contraseña.getText().equals(String.valueOf(fotoDAO.buscarUsuarios("").get(i).getContraseña())))
-                op++;
-        }
-        if(op == 0)
-            return false;
-        else
-            return true;
     }
 }

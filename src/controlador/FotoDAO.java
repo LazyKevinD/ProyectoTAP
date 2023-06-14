@@ -6,99 +6,104 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.swing.JOptionPane;
+
+import ConexionBD.ConexionBD;
+import vista.paginas;
+
 public class FotoDAO implements Runnable{
-    //Metodos ABCC (CRUD)------------------------------------------------------------------------
-    ConexionBD conexion = new ConexionBD();
-    //ALTAS--------------------------------------------------------------------------------------
-    public boolean agregarFoto(Foto a){
-        boolean res = false;
-
-        String sql = "INSERT INTO clientes values(\""+a.getId_cliente()+"\", \""+a.getNombre()+"\", \""+a.getPrimerAp()+"\", \""+a.getSegundoAp()+"\", \""+a.getTelefono()+"\", \""+a.getEmail()+"\");";
-
-        res = conexion.ejecutarInstruccionDML(sql);
-
-        return res;
+    private int filtro;
+    public boolean agregarCliente(Foto a){
+        boolean resultado=false;
+        resultado=ConexionBD.agregarCliente(a);
+        return resultado;
     }
-    //BAJAS--------------------------------------------------------------------------------------
-    public boolean eliminarFoto(String ID_Cliente){
-        boolean res = false;
-
-        String sql = "DELETE FROM clientes WHERE id_clientes = '" + ID_Cliente  + "'";
-
-        res = conexion.ejecutarInstruccionDML(sql);
-
-        return res;
+    public boolean actualizarCliente(Foto a) {
+        boolean resultado = false;
+        resultado=ConexionBD.actualizarCliente(a);
+        return resultado;
     }
+    public Foto buscar(int filtro){
+        Foto a = new Foto();
+        String sql = "SELECT * FROM clientes WHERE id_clientes ="+filtro+";";
 
-    //CAMBIOS------------------------------------------------------------------------------------
-
-    public boolean actualizarCliente(Foto a){
-        boolean res = false;
-
-        String sql = "UPDATE clientes SET Nombre_Cliente='"+ a.getNombre() +"'," +
-                " PrimerAp='"+ a.getPrimerAp() +"'," +
-                " SegundoAp='"+ a.getSegundoAp() +"'," +
-                " Telefono='"+ a.getTelefono() +"'," +
-                " Email='"+ a.getEmail() +"' WHERE ID_Clientes="+a.getId_cliente()+"";
-
-        res = conexion.ejecutarInstruccionDML(sql);
-
-        return res;
-    }
-
-    //CONSULTAS----------------------------------------------------------------------------------
-
-    public Foto buscarCliente (String filtro){
-        return null;
-    }
-
-    public ArrayList<Foto> buscarClientes(String filtro){
-        ArrayList<Foto> listaClientes = new ArrayList<>();
-        String sql = "SELECT * FROM clientes";
-        ResultSet rs = conexion.ejecutarConsulta(sql);
+        ResultSet rs=ConexionBD.ConsultarRegistro(sql);
 
         try {
-            rs.next();
-            do{
-                int idc = rs.getInt(1);
-                String n = rs.getString("Nombre_Cliente");
-                String pa = rs.getString(3);
-                String sa = rs.getString(4);
-                String t = rs.getString(5);
-                String e = rs.getString(6);
 
-                listaClientes.add(new Foto(idc, n, pa, sa, t, e));
-            }while(rs.next());
-
-        }catch (SQLException e) {
-            throw new RuntimeException(e);
+            if(rs.next()) {
+                a.setId_cliente(rs.getInt(1));
+                a.setNombre(rs.getString(2));
+                a.setPrimerAp(rs.getString(3));
+                a.setSegundoAp(rs.getString(4));
+                a.setTelefono(rs.getString(5));
+                a.setEmail(rs.getString(6));
+            }else {;
+                return null;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-
-        return listaClientes;
+        return a;
     }
-    public ArrayList<Foto> buscarUsuarios(String filtro){
-        ArrayList<Foto> listaUsuarios = new ArrayList<>();
-        String sql = "SELECT * FROM usuarios";
-        ResultSet rs = conexion.ejecutarConsulta(sql);
-
-        try {
-            rs.next();
-            do{
-                String u = rs.getString("Usuario");
-                String c = rs.getString("Contraseña");
-
-                listaUsuarios.add(new Foto(u,c));
-            }while(rs.next());
-
-        }catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return listaUsuarios;
+    public boolean eliminarCliente(String idE) {
+        String instruccion = "DELETE FROM clientes WHERE id_clientes = '"+idE+"';";
+        boolean resultado = false;
+        resultado = ConexionBD.eliminarCliente(instruccion);
+        return resultado;
     }
 
     @Override
     public void run() {
+        JOptionPane.showMessageDialog(null,"CONECTANDO");
+        buscar(this.filtro);
+        new paginas();
+    }
 
+    public ArrayList<Foto> buscarU(String filtro){
+        ArrayList<Foto> listaUsuarios = new ArrayList<>();
+        String sql="SELECT * FROM usuarios WHERE usuario ='"+filtro+"';";
+        ResultSet rs=ConexionBD.ConsultarRegistro(sql);
+
+        try {
+            if(rs.next()) {
+                do {
+                    listaUsuarios.add(new Foto(rs.getString(1),rs.getString(2)));
+                }while(rs.next());
+
+            }else {
+                return null;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return listaUsuarios;
+    }
+
+    public ArrayList<Foto> buscarC(String filtro){
+        ArrayList<Foto> listaUsuarios = new ArrayList<>();
+        String sql="SELECT * FROM clientes";
+        ResultSet rs=ConexionBD.ConsultarRegistro(sql);
+
+        try {
+            if(rs.next()) {
+                do {
+                    listaUsuarios.add(new Foto(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6)));
+                }while(rs.next());
+
+            }else {
+                return null;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return listaUsuarios;
+    }
+    public void setFiltro(int filtro) {
+        this.filtro = filtro;
     }
 }

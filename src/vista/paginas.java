@@ -80,8 +80,8 @@ public class paginas extends JFrame implements KeyListener{
     JButton btn_agregar7, btn_borrar7, btn_cambio7, btn_bajar7, btn_buscar7, btn_E17, btn_E27, btn_E37, btn_E47;
     JButton btn_agregar8, btn_borrar8, btn_cambio8, btn_bajar8, btn_buscar8, btn_E18, btn_E28, btn_E38, btn_E48;
     JButton btn_agregar9, btn_borrar9, btn_cambio9, btn_bajar9, btn_buscar9, btn_E19, btn_E29, btn_E39, btn_E49;
-    JButton btn_agregar10, btn_borrar10, btn_cambio10, btn_bajar10, btn_buscar10, btn_E110, btn_E210, btn_E310, btn_E410;
-    JButton btn_agregar11, btn_borrar11, btn_cambio11, btn_bajar11, btn_buscar11, btn_E111, btn_E211, btn_E311, btn_E411;
+    JButton btn_agregar10, btn_borrar10, btn_cambio10, btn_bajar10, btn_buscar10;
+    JButton btn_agregar11, btn_borrar11, btn_cambio11, btn_bajar11, btn_buscar11;
     JButton btn_agregar12, btn_borrar12, btn_cambio12, btn_bajar12, btn_buscar12, btn_E112, btn_E212, btn_E312, btn_E412;
     JButton btn_agregar13, btn_borrar13, btn_cambio13, btn_bajar13, btn_buscar13, btn_E113, btn_E213, btn_E313, btn_E413;
     JButton btn_agregar14, btn_borrar14, btn_cambio14, btn_bajar14, btn_buscar14, btn_E114, btn_E214, btn_E314, btn_E414;
@@ -1213,16 +1213,16 @@ public class paginas extends JFrame implements KeyListener{
                 if(caja_id.getText().equals("") || caja_nombre.getText().equals("") || caja_primerAp.getText().equals("") || caja_segundoAp.getText().equals("") || caja_telefono.getText().equals("") || caja_email.getText().equals("")){
                     JOptionPane.showMessageDialog(null, "Llene todas las cajas");
                 }else{
-                    reg = fotoDAO.buscarClientes("").size();
+                    reg = fotoDAO.buscarC("").size();
                     for(int i = 0; i<reg; i++){
-                        if(fotoDAO.buscarClientes("").get(i).getId_cliente() != Integer.parseInt(caja_id.getText()))
+                        if(fotoDAO.buscarC("").get(i).getId_cliente() != Integer.parseInt(caja_id.getText()))
                             cont1++;
                     }
                     if(cont1 == reg){
                         Foto f1 = new Foto(Integer.parseInt(caja_id.getText()), caja_nombre.getText(), caja_primerAp.getText(), caja_segundoAp.getText(),
                                 caja_telefono.getText(), caja_email.getText());
 
-                        if (fotoDAO.agregarFoto(f1)){
+                        if (fotoDAO.agregarCliente(f1)){
                             JOptionPane.showMessageDialog(null, "SE AGREGO");
                             actualizarTablas(tabla);
                         } else
@@ -1253,16 +1253,23 @@ public class paginas extends JFrame implements KeyListener{
             public void actionPerformed(ActionEvent e) {
                 if(caja_id.getText().equals("") || caja_nombre.getText().equals("") || caja_primerAp.getText().equals("") || caja_segundoAp.getText().equals("") || caja_telefono.getText().equals("") || caja_email.getText().equals("")){
                     JOptionPane.showMessageDialog(null, "Llene todas las cajas");
-                }else{
+                }else{reg = fotoDAO.buscarC("").size();
+                    for(int i = 0; i<reg; i++){
+                        if(fotoDAO.buscarC("").get(i).getId_cliente() == Integer.parseInt(caja_id.getText()))
+                            cont1++;
+                    }
+                    if(cont1 > 0){
                         Foto f1 = new Foto(Integer.parseInt(caja_id.getText()), caja_nombre.getText(), caja_primerAp.getText(), caja_segundoAp.getText(),
                                 caja_telefono.getText(), caja_email.getText());
 
-                    if (fotoDAO.actualizarCliente(f1)){
-                        JOptionPane.showMessageDialog(null, "SE ACTUALIZO");
-                        actualizarTablas(tabla);
-                    }
-                    else
-                        JOptionPane.showMessageDialog(null, "NO SE ENCONTRO ESE ID");
+                        if (fotoDAO.actualizarCliente(f1)){
+                            JOptionPane.showMessageDialog(null, "SE ACTUALIZO");
+                            actualizarTablas(tabla);
+                        } else
+                            JOptionPane.showMessageDialog(null, "NO SE PUDO ACTUALIZAR");
+                    }else
+                        JOptionPane.showMessageDialog(null, "NO SE ENCONTRO EL ID");
+                    cont1 = 0;
                 }
             }
         });
@@ -1290,7 +1297,7 @@ public class paginas extends JFrame implements KeyListener{
                 }else {
                         Foto f1 = new Foto(Integer.parseInt(caja_id.getText()), caja_nombre.getText(), caja_primerAp.getText(), caja_segundoAp.getText(),
                                 caja_telefono.getText(), caja_email.getText());
-                    if(fotoDAO.eliminarFoto(caja_id.getText())) {
+                    if(fotoDAO.eliminarCliente(caja_id.getText())) {
                         JOptionPane.showMessageDialog(null, "SE ELIMINO");
                         actualizarTablas(tabla);
                         cont = 0;
@@ -1312,14 +1319,14 @@ public class paginas extends JFrame implements KeyListener{
         btn_E1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 cont = 0;
-                if(fotoDAO.buscarClientes("").size() != 0){
+                if(fotoDAO.buscarC("").size() != 0){
                     caja_registro.setText(String.valueOf(cont));
-                    caja_id.setText(String.valueOf(fotoDAO.buscarClientes("").get(cont).getId_cliente()));
-                    caja_nombre.setText(fotoDAO.buscarClientes("").get(cont).getNombre());
-                    caja_primerAp.setText(fotoDAO.buscarClientes("").get(cont).getPrimerAp());
-                    caja_segundoAp.setText(fotoDAO.buscarClientes("").get(cont).getSegundoAp());
-                    caja_telefono.setText(fotoDAO.buscarClientes("").get(cont).getTelefono());
-                    caja_email.setText(fotoDAO.buscarClientes("").get(cont).getEmail());
+                    caja_id.setText(String.valueOf(fotoDAO.buscarC("").get(cont).getId_cliente()));
+                    caja_nombre.setText(fotoDAO.buscarC("").get(cont).getNombre());
+                    caja_primerAp.setText(fotoDAO.buscarC("").get(cont).getPrimerAp());
+                    caja_segundoAp.setText(fotoDAO.buscarC("").get(cont).getSegundoAp());
+                    caja_telefono.setText(fotoDAO.buscarC("").get(cont).getTelefono());
+                    caja_email.setText(fotoDAO.buscarC("").get(cont).getEmail());
                 }
             }
         });
@@ -1333,14 +1340,14 @@ public class paginas extends JFrame implements KeyListener{
                 if(cont != 0){
                     cont --;
                 }
-                if(fotoDAO.buscarClientes("").size() != 0){
+                if(fotoDAO.buscarC("").size() != 0){
                     caja_registro.setText(String.valueOf(cont));
-                    caja_id.setText(String.valueOf(fotoDAO.buscarClientes("").get(cont).getId_cliente()));
-                    caja_nombre.setText(fotoDAO.buscarClientes("").get(cont).getNombre());
-                    caja_primerAp.setText(fotoDAO.buscarClientes("").get(cont).getPrimerAp());
-                    caja_segundoAp.setText(fotoDAO.buscarClientes("").get(cont).getSegundoAp());
-                    caja_telefono.setText(fotoDAO.buscarClientes("").get(cont).getTelefono());
-                    caja_email.setText(fotoDAO.buscarClientes("").get(cont).getEmail());
+                    caja_id.setText(String.valueOf(fotoDAO.buscarC("").get(cont).getId_cliente()));
+                    caja_nombre.setText(fotoDAO.buscarC("").get(cont).getNombre());
+                    caja_primerAp.setText(fotoDAO.buscarC("").get(cont).getPrimerAp());
+                    caja_segundoAp.setText(fotoDAO.buscarC("").get(cont).getSegundoAp());
+                    caja_telefono.setText(fotoDAO.buscarC("").get(cont).getTelefono());
+                    caja_email.setText(fotoDAO.buscarC("").get(cont).getEmail());
                 }
             }
         });
@@ -1351,17 +1358,17 @@ public class paginas extends JFrame implements KeyListener{
         IF_Clientes.add(btn_E3);
         btn_E3.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if(cont != fotoDAO.buscarClientes("").size()-1){
+                if(cont != fotoDAO.buscarC("").size()-1){
                     cont ++;
                 }
-                if(fotoDAO.buscarClientes("").size() != 0){
+                if(fotoDAO.buscarC("").size() != 0){
                     caja_registro.setText(String.valueOf(cont));
-                    caja_id.setText(String.valueOf(fotoDAO.buscarClientes("").get(cont).getId_cliente()));
-                    caja_nombre.setText(fotoDAO.buscarClientes("").get(cont).getNombre());
-                    caja_primerAp.setText(fotoDAO.buscarClientes("").get(cont).getPrimerAp());
-                    caja_segundoAp.setText(fotoDAO.buscarClientes("").get(cont).getSegundoAp());
-                    caja_telefono.setText(fotoDAO.buscarClientes("").get(cont).getTelefono());
-                    caja_email.setText(fotoDAO.buscarClientes("").get(cont).getEmail());
+                    caja_id.setText(String.valueOf(fotoDAO.buscarC("").get(cont).getId_cliente()));
+                    caja_nombre.setText(fotoDAO.buscarC("").get(cont).getNombre());
+                    caja_primerAp.setText(fotoDAO.buscarC("").get(cont).getPrimerAp());
+                    caja_segundoAp.setText(fotoDAO.buscarC("").get(cont).getSegundoAp());
+                    caja_telefono.setText(fotoDAO.buscarC("").get(cont).getTelefono());
+                    caja_email.setText(fotoDAO.buscarC("").get(cont).getEmail());
                 }
             }
         });
@@ -1372,15 +1379,15 @@ public class paginas extends JFrame implements KeyListener{
         IF_Clientes.add(btn_E4);
         btn_E4.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                cont = fotoDAO.buscarClientes("").size()-1;
-                if(fotoDAO.buscarClientes("").size() != 0){
+                cont = fotoDAO.buscarC("").size()-1;
+                if(fotoDAO.buscarC("").size() != 0){
                     caja_registro.setText(String.valueOf(cont));
-                    caja_id.setText(String.valueOf(fotoDAO.buscarClientes("").get(cont).getId_cliente()));
-                    caja_nombre.setText(fotoDAO.buscarClientes("").get(cont).getNombre());
-                    caja_primerAp.setText(fotoDAO.buscarClientes("").get(cont).getPrimerAp());
-                    caja_segundoAp.setText(fotoDAO.buscarClientes("").get(cont).getSegundoAp());
-                    caja_telefono.setText(fotoDAO.buscarClientes("").get(cont).getTelefono());
-                    caja_email.setText(fotoDAO.buscarClientes("").get(cont).getEmail());
+                    caja_id.setText(String.valueOf(fotoDAO.buscarC("").get(cont).getId_cliente()));
+                    caja_nombre.setText(fotoDAO.buscarC("").get(cont).getNombre());
+                    caja_primerAp.setText(fotoDAO.buscarC("").get(cont).getPrimerAp());
+                    caja_segundoAp.setText(fotoDAO.buscarC("").get(cont).getSegundoAp());
+                    caja_telefono.setText(fotoDAO.buscarC("").get(cont).getTelefono());
+                    caja_email.setText(fotoDAO.buscarC("").get(cont).getEmail());
                 }
             }
         });

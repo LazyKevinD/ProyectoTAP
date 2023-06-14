@@ -1,13 +1,22 @@
 package ConexionBD;
-import java.sql.*;
 
-public class ConexionBD {
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
-    private Connection conexion;
-    private Statement stm;
-    private ResultSet rs;
+import modelo.Foto;
 
-    public ConexionBD() {
+public class ConexionBD{
+
+    private static Connection conexion = null;
+    private static PreparedStatement pstm;
+    private static ResultSet rs;
+
+
+    private ConexionBD() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
 
@@ -15,39 +24,33 @@ public class ConexionBD {
 
             conexion = DriverManager.getConnection(URL,"root","KevinDany1");
 
-            System.out.println("CONEXION ESTABLECIDA");
-            System.out.println("Ya casi soy ISC");
-
         } catch (ClassNotFoundException e) {
             System.out.println("ERROR DE DRIVER");
         }catch (SQLException e) {
             System.out.println("Error de ruta URL");
         }
     }
-
-    //metodo ABC (Altas, Bajas, Cambios)
-    public boolean ejecutarInstruccionDML(String instruccionDML){
-        boolean res = false;
-
+    static void cerrarConexion(){
         try {
-            stm = conexion.createStatement();
-            if(stm.executeUpdate(instruccionDML) >= 1){
-                res = true;
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Error en Instruccion SQL");
+            pstm.close();
+            conexion.close();
+        }catch (SQLException e){
+            throw new RuntimeException(e);
         }
-
-        return res;
+    }
+    public static Connection getConexion() {
+        if (conexion == null) {
+            new ConexionBD();
+        }
+        return conexion;
     }
 
-    public ResultSet ejecutarConsulta(String consultaSQL){
+    public static ResultSet ejecutarConsulta(String consultaSQL){
         rs = null;
 
         try {
-            stm = conexion.createStatement();
-            rs = stm.executeQuery(consultaSQL);
+            pstm = conexion.prepareStatement(consultaSQL);
+            rs = pstm.executeQuery(consultaSQL);
 
         } catch (SQLException e) {
             throw new RuntimeException("Error en Instruccion SQL");
@@ -55,18 +58,68 @@ public class ConexionBD {
 
         return rs;
     }
-
-    public void cerrarConexion(){
+    public static boolean agregarCliente(Foto a) {
         try {
-            conexion.close();
-        }catch (SQLException e){
-            throw new RuntimeException(e);
+            pstm = conexion.prepareStatement("insert into clientes values(?,?,?,?,?,?)");
+
+            pstm.setInt(1, a.getId_cliente());
+            pstm.setString(2,a.getNombre());
+            pstm.setString(3,a.getPrimerAp());
+            pstm.setString(4,a.getSegundoAp());
+            pstm.setString(5,a.getTelefono());
+            pstm.setString(6,a.getEmail());
+
+            pstm.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return false;
+    }
+    public static boolean eliminarCliente(String instruccion){
+        try {
+            String consulta = instruccion;
+            pstm = conexion.prepareStatement(consulta);
+            pstm.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+        return false;
     }
 
-    public static void main(String[] args) {
-        new ConexionBD();
+    public static  ResultSet ConsultarRegistro(String consulta){
+
+        try {
+            pstm = conexion.prepareStatement(consulta);
+            return pstm.executeQuery();
+
+        } catch (Exception ex) {
+            System.out.println(ex.toString());
+        }
+        return null;
     }
 
+    //CAMBIOS------------------------------------------------------------------------------------
+
+    public static boolean actualizarCliente(Foto a){
+        try {
+            pstm = conexion.prepareStatement("UPDATE clientes SET nombre_cliente=?,primerAp=?,segundoAp=?,telefono=?, email=? where id_clientes="+a.getId_cliente()+"");
+            pstm.setString(1,a.getNombre());
+            pstm.setString(2,a.getPrimerAp());
+            pstm.setString(3,a.getSegundoAp());
+            pstm.setString(4,a.getTelefono());
+            pstm.setString(5,a.getEmail());
+
+            pstm.executeUpdate();
+
+            return true;
+
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+        return false;
+    }
 }
 
